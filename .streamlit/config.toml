@@ -13,3 +13,7 @@ textColor="#3133F"
 
 # Font family
 font="sans serif"
+
+[toolbar]
+# This completely hides the toolbar in the top-right of the app.
+visible = false
