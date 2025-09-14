@@ -32,7 +32,7 @@ st.markdown("""
         height: 0%;
         position: fixed;
     }
-    
+
     /* Define LIC Colors for easy reference */
     :root {
         --lic-blue: #0033A0;
@@ -151,13 +151,12 @@ def display_fund_details(customer_data):
     most_recent_fund_size = None
     most_recent_date_str = None
 
-    # FIX 1: Find the most recent VALID fund size, not just the newest column
     for col in fund_cols:
         fund_value = customer_data[col].iloc[0]
         if pd.notna(fund_value):
             most_recent_fund_size = fund_value
             most_recent_date_str = col.split('_')[-1]
-            break # Stop as soon as we find the first valid one
+            break
 
     if most_recent_fund_size is None:
         st.warning("No fund size data available for this customer.")
@@ -180,7 +179,6 @@ def display_fund_details(customer_data):
             alt.Chart(chart_data)
             .mark_line(point=True, strokeWidth=3)
             .encode(
-                # FIX 2: Format the x-axis to be clear (e.g., 'Mar 2023')
                 x=alt.X('Date:T', title='Date', axis=alt.Axis(format='%b %Y')),
                 y=alt.Y('Fund Size:Q', title='Fund Size (in Crores)'),
                 tooltip=['Date', 'Fund Size']
@@ -189,6 +187,12 @@ def display_fund_details(customer_data):
         )
         st.altair_chart(chart, use_container_width=True, theme="streamlit")
 
+# --- Main Navigation Function ---
+def go_to_main_menu():
+    st.session_state.view_mode = None
+    for key in ['loc_state', 'loc_unit', 'seg_segment']:
+        if key in st.session_state:
+            del st.session_state[key]
 
 # --- VIEW 1: BROWSE BY LOCATION ---
 def render_location_view():
@@ -208,14 +212,22 @@ def render_location_view():
             cols[i % 4].button(state, on_click=select_state, args=(state,), use_container_width=True)
     elif st.session_state.loc_unit is None:
         st.subheader(f"Select a Unit in {st.session_state.loc_state}")
+        # --- FIX: Added visible main menu button ---
+        col1, col2 = st.columns([3, 1])
+        col1.button("← Back to State Selection", on_click=back_to_states, use_container_width=True)
+        col2.button("🏠 Main Menu", on_click=go_to_main_menu, use_container_width=True)
+        
         state_df = df[df['state'] == st.session_state.loc_state]
         units = sorted(state_df['unit'].unique())
         cols = st.columns(4)
         for i, unit in enumerate(units):
             cols[i % 4].button(unit, on_click=select_unit, args=(unit,), use_container_width=True)
-        st.button("← Back to State Selection", on_click=back_to_states)
     else:
-        st.button("← Back to Unit Selection", on_click=back_to_units)
+        # --- FIX: Added visible main menu button ---
+        col1, col2 = st.columns([3, 1])
+        col1.button("← Back to Unit Selection", on_click=back_to_units, use_container_width=True)
+        col2.button("🏠 Main Menu", on_click=go_to_main_menu, use_container_width=True)
+
         st.info(f"Current Selection: **{st.session_state.loc_state} → {st.session_state.loc_unit}**")
         unit_df = df[(df['state'] == st.session_state.loc_state) & (df['unit'] == st.session_state.loc_unit)]
         segments = sorted(unit_df['segment'].unique())
@@ -245,7 +257,11 @@ def render_segment_view():
         for i, segment in enumerate(segments):
             cols[i % 4].button(segment, on_click=select_segment, args=(segment,), use_container_width=True)
     else:
-        st.button("← Back to Segment Selection", on_click=back_to_segments)
+        # --- FIX: Added visible main menu button ---
+        col1, col2 = st.columns([3, 1])
+        col1.button("← Back to Segment Selection", on_click=back_to_segments, use_container_width=True)
+        col2.button("🏠 Main Menu", on_click=go_to_main_menu, use_container_width=True)
+
         st.info(f"Showing all customers in segment: **{st.session_state.seg_segment}**")
         segment_df = df[df['segment'] == st.session_state.seg_segment]
         display_df = segment_df[['customer_name', 'state', 'unit']].copy()
@@ -275,10 +291,9 @@ if st.session_state.authentication_status:
             st.info("To update data, upload a new `data.xlsx` file to the project's GitHub repository.")
         st.divider()
         if 'view_mode' in st.session_state and st.session_state.view_mode is not None:
-            if st.button("⬅️ Return to Main Menu", use_container_width=True):
-                st.session_state.view_mode = None
-                for key in ['loc_state', 'loc_unit', 'seg_segment']:
-                    if key in st.session_state: del st.session_state[key]
+            # The sidebar button is now a secondary option
+            if st.button("⬅️ Main Menu", use_container_width=True):
+                go_to_main_menu()
                 st.rerun()
         if st.button("Log Out", use_container_width=True):
             for key in st.session_state.keys():
@@ -306,3 +321,4 @@ if st.session_state.authentication_status:
 else:
     # --- LOGIN SCREEN ---
     check_password()
+
