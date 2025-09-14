@@ -1,0 +1,15 @@
+[theme]
+# Primary LIC Blue for headers and highlights
+primaryColor="#0033A0"
+
+# A professional light "ash" grey background
+backgroundColor="#F0F2F6"
+
+# A clean white for component backgrounds, sidebar, etc.
+secondaryBackgroundColor="#FFFFFF"
+
+# A dark, highly readable color for all text
+textColor="#3133F"
+
+# Font family
+font="sans serif"
