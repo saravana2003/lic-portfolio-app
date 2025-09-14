@@ -23,17 +23,17 @@ st.markdown("""
 <style> 
     /* HIDE THE STREAMLIT TOOLBAR (Fork, GitHub buttons) */
     [data-testid="stToolbar"] {
-    visibility: hidden;
-    height: 0%;
-    position: fixed;
+        visibility: hidden;
+        height: 0%;
+        position: fixed;
     }
 
     [data-testid="stDecoration"] {
-    visibility: hidden;
-    height: 0%;
-    position: fixed;
+        visibility: hidden;
+        height: 0%;
+        position: fixed;
     }
-    
+
     /* Define LIC Colors for easy reference */
     :root {
         --lic-blue: #0033A0;
